@@ -32,7 +32,11 @@ final readonly class TranslationPlugin
     public function notices_activation(): void
     {
         if (get_transient(self::OPENAI_TRANSLATION_ACTIVATED)) {
-            // Todo: Check if the OpenAI API key is set
+            if (empty($this->apiKey)) {
+                $this->render('notices-empty-openaikey');
+                return;
+            }
+
             $this->render('notices', [
                 'message' => 'Translation plugin is now activated!',
             ]);
