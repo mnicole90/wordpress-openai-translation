@@ -13,8 +13,12 @@ You need to add your OpenAI API key to the environment variable `OPENAI_SECRET` 
 ## Installation
 
 1. Download the plugin into your `wp-content/plugins` directory.
-2. In your terminal, run `composer install` in the plugin directory.
-3. Activate the plugin in your Wordpress admin panel.
+2. Activate the plugin in your Wordpress admin panel.
+
+### Using SymfonyLocaleValidator component
+
+If you want to use the Symfony Locale Validator, in your terminal run `composer install` in the plugin directory and set
+the environment variable `OPENAI_TRANSLATION_VALIDATOR`to `symfony`.
 
 ## Usage
 
@@ -26,10 +30,10 @@ You need to add your OpenAI API key to the environment variable `OPENAI_SECRET` 
 
 ## Authors
 
-* **Maxime N.** <https://linkedin.com/in/mnicole>
+* **Maxime Nicole** - <https://linkedin.com/in/mnicole>
 
 ## License
 
-Copyright 2023 Maxime N.
+Copyright 2023 Maxime Nicole
 
 Licensed under the MIT License: http://opensource.org/licenses/MIT

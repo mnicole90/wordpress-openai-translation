@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Translation;
 
-use Translation\Domain\Service\SymfonyLocaleValidator;
 use Translation\Presentation\TranslateTextJsonPresenter;
 use WP_REST_Server;
 
@@ -14,7 +13,8 @@ final readonly class TranslationPlugin
 
     public function __construct(
         private string $file,
-        private string $apiKey
+        private string $apiKey,
+        private string $validatorName
     )
     {
         register_activation_hook($this->file, [$this, 'plugin_activation']);
@@ -63,17 +63,25 @@ final readonly class TranslationPlugin
     {
         $response = new \WP_REST_Response();
 
+        // Init use case
         $translator = new Domain\Service\OpenAITranslator($this->apiKey);
-        $validator = new SymfonyLocaleValidator();
+        $validator = match ($this->validatorName) {
+            'symfony' => new Domain\Service\SymfonyLocaleValidator(),
+            default => new Domain\Service\CustomLocaleValidator(),
+        };
         $translateText = new Domain\UseCase\TranslateText\TranslateText($translator, $validator);
+        $presenter = new TranslateTextJsonPresenter();
+
+        // Create request
         $translateTextRequest = new Domain\UseCase\TranslateText\TranslateTextRequest();
         $translateTextRequest->title = $request->get_param('title');
         $translateTextRequest->blocks = $request->get_param('blocks');
         $translateTextRequest->targetLanguage = $request->get_param('language');
-        $presenter = new TranslateTextJsonPresenter();
 
+        // Execute use case
         $translateText->execute($translateTextRequest, $presenter);
 
+        // Generate response
         $response->set_data($presenter->json());
         if ($presenter->hasErrors()) {
             $response->set_status(400);
