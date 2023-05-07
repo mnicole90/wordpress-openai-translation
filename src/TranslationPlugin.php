@@ -103,6 +103,9 @@ final readonly class TranslationPlugin
 
         wp_register_script('translation.js', plugin_dir_url($this->file) . 'assets/js/translation.js', ['jquery'], '1.0.0');
         wp_enqueue_script('translation.js');
+        wp_localize_script('translation.js', 'openai_translation', [
+            'rest_url' => rest_url(self::NAMESPACE . '/translate'),
+        ]);
 
         // Add font awesome
         wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css', [], '5.15.3');

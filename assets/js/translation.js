@@ -35,7 +35,7 @@ jQuery(document).ready(function ($) {
 
         // Call the API
         $.ajax({
-            url: wpApiSettings.root + 'openai-translation/v1/translate',
+            url: openai_translation.rest_url,
             method: 'POST',
             data: {
                 title: title,
