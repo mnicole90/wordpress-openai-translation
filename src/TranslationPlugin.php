@@ -48,7 +48,7 @@ final readonly class TranslationPlugin
     public function register_routes(): void
     {
         register_rest_route(self::NAMESPACE, '/translate', [
-            'methods' => WP_REST_Server::CREATABLE, // WP_REST_Server::READABLE
+            'methods' => WP_REST_Server::CREATABLE,
             'permission_callback' => [$this, 'privileged_permission_callback'],
             'callback' => [$this, 'translate_text'],
         ]);
@@ -56,9 +56,7 @@ final readonly class TranslationPlugin
 
     public static function privileged_permission_callback(): bool
     {
-        // Todo: Check if user is allowed to edit post
-        return true;
-        //current_user_can('edit_others_posts');
+        return current_user_can('edit_posts') || current_user_can('edit_pages');
     }
 
     public function translate_text(\WP_REST_Request $request): \WP_REST_Response
@@ -87,7 +85,15 @@ final readonly class TranslationPlugin
     public function enqueue_assets(): void
     {
         global $pagenow;
-        if ($pagenow !== 'post.php') {
+        if (!in_array($pagenow, ['post.php', 'page.php'])) {
+            return;
+        }
+
+        if ($pagenow === 'post.php' && !current_user_can('edit_posts')) {
+            return;
+        }
+
+        if ($pagenow === 'page.php' && !current_user_can('edit_pages')) {
             return;
         }
 
