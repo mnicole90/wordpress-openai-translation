@@ -35,13 +35,16 @@ jQuery(document).ready(function ($) {
 
         // Call the API
         $.ajax({
-            url: '/wp-json/openai-translation/v1/translate',
+            url: wpApiSettings.root + 'openai-translation/v1/translate',
             method: 'POST',
             data: {
                 title: title,
                 blocks: blocks,
                 language: language,
-            }
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-WP-Nonce', wpApiSettings.nonce);
+            },
         }).done(function (data) {
             // Replace the title
             wp.data.dispatch("core/editor").editPost({title: data.title});
@@ -57,8 +60,8 @@ jQuery(document).ready(function ($) {
             $('#translate-spinner')
                 .css('display', 'none');
 
-        }).fail(function (jqXHR, textStatus) {
-            alert('Error: ' + textStatus);
+        }).fail(function (jqXHR) {
+            alert(jqXHR.responseJSON.message);
 
             // Hide the spinner
             $('#translate-spinner')

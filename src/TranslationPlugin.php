@@ -38,7 +38,7 @@ final readonly class TranslationPlugin
             }
 
             $this->render('notices', [
-                'message' => 'Translation plugin is now activated!',
+                'message' => 'OpenAI Translation plugin is now activated!',
             ]);
 
             delete_transient(self::OPENAI_TRANSLATION_ACTIVATED);
@@ -93,15 +93,11 @@ final readonly class TranslationPlugin
     public function enqueue_assets(): void
     {
         global $pagenow;
-        if (!in_array($pagenow, ['post.php', 'page.php'])) {
+        if (!in_array($pagenow, ['post.php', 'post-new.php'])) {
             return;
         }
 
-        if ($pagenow === 'post.php' && !current_user_can('edit_posts')) {
-            return;
-        }
-
-        if ($pagenow === 'page.php' && !current_user_can('edit_pages')) {
+        if (!current_user_can('edit_posts') || !current_user_can('edit_pages')) {
             return;
         }
 
