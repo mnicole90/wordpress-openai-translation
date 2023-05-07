@@ -22,6 +22,8 @@ final readonly class TranslationPlugin
         add_action('rest_api_init', [$this, 'register_routes']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('print_media_templates', [$this, 'add_tpl_translation_button']);
+        add_action('admin_menu', [$this, 'add_settings_page']);
+        add_action('admin_init', [$this, 'register_settings']);
     }
 
     public function plugin_activation(): void
@@ -40,6 +42,8 @@ final readonly class TranslationPlugin
             $this->render('notices', [
                 'message' => 'OpenAI Translation plugin is now activated!',
             ]);
+            add_option('openai_translation_api_key', $this->apiKey);
+            add_option('openai_translation_validator_name', $this->validatorName);
 
             delete_transient(self::OPENAI_TRANSLATION_ACTIVATED);
         }
@@ -101,7 +105,7 @@ final readonly class TranslationPlugin
             return;
         }
 
-        wp_register_script('translation.js', plugin_dir_url($this->file) . 'assets/js/translation.js', ['jquery'], '1.0.0');
+        wp_register_script('translation.js', plugin_dir_url($this->file) . 'assets/js/translation.js', ['jquery'], '1.1.0');
         wp_enqueue_script('translation.js');
         wp_localize_script('translation.js', 'openai_translation', [
             'rest_url' => rest_url(self::NAMESPACE . '/translate'),
@@ -114,6 +118,28 @@ final readonly class TranslationPlugin
     public function add_tpl_translation_button(): void
     {
         $this->render('translation-button');
+    }
+
+    public function add_settings_page(): void
+    {
+        add_options_page(
+            'OpenAI Translation',
+            'OpenAI Translation',
+            'manage_options',
+            'openai-translation',
+            [$this, 'render_settings_page']
+        );
+    }
+
+    public function render_settings_page(): void
+    {
+        $this->render('settings-page');
+    }
+
+    public function register_settings(): void
+    {
+        register_setting('openai-translation', 'openai_translation_api_key');
+        register_setting('openai-translation', 'openai_translation_validator_name');
     }
 
     public function render(string $name, array $args = []): void
