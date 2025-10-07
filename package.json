@@ -1,0 +1,19 @@
+{
+  "name": "wordpress-openai-translation",
+  "version": "1.1.0",
+  "description": "This plugin uses the OpenAI API to translate your posts and pages into other languages.",
+  "main": "index.js",
+  "scripts": {
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
+    "lint": "eslint assets/js/*.js"
+  },
+  "author": "Maxime Nicole",
+  "license": "MIT",
+  "homepage": "https://github.com/mnicole90/wordpress-openai-translation/",
+  "devDependencies": {
+    "@wordpress/scripts": "26.5.0",
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0"
+  }
+}

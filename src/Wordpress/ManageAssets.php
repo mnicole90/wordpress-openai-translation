@@ -12,33 +12,33 @@ final class ManageAssets
     public function __construct(string $file)
     {
         $this->file = $file;
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
-        add_action('print_media_templates', [$this, 'add_tpl_translation_button']);
+        add_action('enqueue_block_editor_assets', [$this, 'load_editor_assets'], 10);
     }
 
-    public function enqueue_assets(): void
+    public function load_editor_assets(): void
     {
-        global $pagenow;
-        if (!in_array($pagenow, ['post.php', 'post-new.php'])) {
-            return;
-        }
+        wp_enqueue_script(
+            'openai-translation-gutenberg-editor',
+            plugin_dir_url($this->file) . 'assets/build/editor.js',
+            [
+                'wp-i18n',
+                'wp-element',
+                'wp-blocks',
+                'wp-components',
+                'wp-editor',
+                'wp-edit-post',
+                'wp-plugins',
+                'wp-data',
+                'wp-compose',
+                'wp-api-fetch'
+            ],
+            '1.1.0',
+            false
+        );
 
-        if (!current_user_can('edit_posts') || !current_user_can('edit_pages')) {
-            return;
-        }
-
-        wp_register_script('translation.js', plugin_dir_url($this->file) . 'assets/js/translation.js', ['jquery'], '1.1.0');
-        wp_enqueue_script('translation.js');
-        wp_localize_script('translation.js', 'openai_translation', [
-            'rest_url' => rest_url(TranslationPlugin::NAMESPACE . '/translate'),
+        // Localize script with REST API URL
+        wp_localize_script('openai-translation-gutenberg-editor', 'openaiTranslation', [
+            'restUrl' => rest_url(TranslationPlugin::NAMESPACE . '/translate'),
         ]);
-
-        // Add font awesome
-        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css', [], '5.15.3');
-    }
-
-    public function add_tpl_translation_button(): void
-    {
-        $this->render('translation-button');
     }
 }
