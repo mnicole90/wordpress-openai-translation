@@ -32,17 +32,26 @@ final class Endpoints
         return current_user_can('edit_posts') || current_user_can('edit_pages');
     }
 
+    private function createValidator(): \Translation\Domain\Service\LocaleValidatorInterface
+    {
+        if (
+            get_option('openai_translation_validator_name') === 'symfony' &&
+            class_exists('Symfony\Component\Validator\Constraints\Locale') &&
+            class_exists('Symfony\Component\Validator\Validation')
+        ) {
+            return new SymfonyLocaleValidator();
+        }
+
+        return new CustomLocaleValidator();
+    }
+
     public function translate_text(\WP_REST_Request $request): \WP_REST_Response
     {
         $response = new \WP_REST_Response();
 
         // Init use case
         $translator = new OpenAITranslator(get_option('openai_translation_api_key'));
-        $validator = match (get_option('openai_translation_validator_name')) {
-            'symfony' => new SymfonyLocaleValidator(),
-            default => new CustomLocaleValidator(),
-        };
-        $translateText = new TranslateText($translator, $validator);
+        $translateText = new TranslateText($translator, $this->createValidator());
         $presenter = new TranslateTextJsonPresenter();
 
         // Create request
