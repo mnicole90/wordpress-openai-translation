@@ -1,0 +1,4 @@
+.dashicons-translation::before { color: purple; }
+.components-button.is-pressed[aria-controls="openai-translation-plugin:openai-translation-sidebar"]:not(:disabled, [aria-disabled="true"]) {
+  background: var(--wp-components-color-foreground, lightgreen);
+}

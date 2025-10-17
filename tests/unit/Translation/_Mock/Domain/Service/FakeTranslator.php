@@ -7,9 +7,9 @@ use Translation\Domain\Service\TranslatorInterface;
 
 final class FakeTranslator implements TranslatorInterface
 {
-    public function translate(string $text, string $targetLanguage): string
+    public function translate(string $text, string $targetLocale): string
     {
-        return match ($targetLanguage) {
+        return match ($targetLocale) {
             'fr_FR' => 'Bonjour',
             'es_ES' => 'Hola',
         };

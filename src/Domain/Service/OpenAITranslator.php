@@ -5,7 +5,7 @@ namespace Translation\Domain\Service;
 
 use RuntimeException;
 
-final class OpenAITranslator implements TranslatorInterface
+final class OpenAITranslator extends AbstractAITranslator
 {
     private OpenAI $openIA;
 
@@ -14,9 +14,15 @@ final class OpenAITranslator implements TranslatorInterface
         $this->openIA = new OpenAI($this->apiKey);
     }
 
-    public function translate(string $text, string $targetLanguage): string
+    protected function getEngineIdentifier(): string
     {
-        $system = sprintf('You are a professional translator. You will have to answer just by giving only one translation in %s.', $targetLanguage);
+        return 'openai';
+    }
+
+    public function translate(string $text, string $targetLocale): string
+    {
+        // Use inherited buildPrompt method
+        $system = $this->buildPrompt($targetLocale);
 
         $response = $this->openIA->chat([
             'model' => 'gpt-3.5-turbo',

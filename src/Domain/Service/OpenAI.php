@@ -22,8 +22,7 @@ final class OpenAI
 
     public function __construct(
         private readonly string $apiKey
-    )
-    {
+    ) {
         $this->contentTypes = [
             "application/json" => "Content-Type: application/json",
             "multipart/form-data" => "Content-Type: multipart/form-data",
@@ -134,6 +133,10 @@ final class OpenAI
         } else {
             $this->headers[0] = $this->contentTypes["application/json"];
         }
+
+        $this->headers = apply_filters('openai_translation_http_request_headers', $this->headers, $url);
+        $post_fields = apply_filters('openai_translation_http_request_fields', $post_fields, $url, $this->headers);
+
         $curl_info = [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -168,6 +171,8 @@ final class OpenAI
         $this->curlInfo = $info;
 
         curl_close($curl);
+
+        do_action('openai_translation_http_response', $response, $url, $this->headers, $post_fields);
 
         return $response;
     }

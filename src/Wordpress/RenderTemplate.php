@@ -6,7 +6,7 @@ namespace Translation\Wordpress;
 trait RenderTemplate
 {
     private string $file;
-    
+
     public function render(string $name, array $args = []): void
     {
         extract($args);

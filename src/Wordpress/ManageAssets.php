@@ -12,33 +12,61 @@ final class ManageAssets
     public function __construct(string $file)
     {
         $this->file = $file;
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
-        add_action('print_media_templates', [$this, 'add_tpl_translation_button']);
+        add_action('enqueue_block_editor_assets', [$this, 'load_editor_assets'], 10);
     }
 
-    public function enqueue_assets(): void
+    public function load_editor_assets(): void
     {
-        global $pagenow;
-        if (!in_array($pagenow, ['post.php', 'post-new.php'])) {
-            return;
-        }
+        // Main sidebar plugin
+        wp_enqueue_script(
+            'openai-translation-gutenberg-editor',
+            plugin_dir_url($this->file) . 'assets/build/editor.js',
+            [
+                'wp-i18n',
+                'wp-element',
+                'wp-blocks',
+                'wp-components',
+                'wp-editor',
+                'wp-edit-post',
+                'wp-plugins',
+                'wp-data',
+                'wp-compose',
+                'wp-api-fetch'
+            ],
+            '1.2.0',
+            false
+        );
 
-        if (!current_user_can('edit_posts') || !current_user_can('edit_pages')) {
-            return;
-        }
+        // Block-level controls (translation and rollback buttons)
+        wp_enqueue_script(
+            'openai-translation-block-controls',
+            plugin_dir_url($this->file) . 'assets/build/block-editor.js',
+            [
+                'wp-i18n',
+                'wp-element',
+                'wp-blocks',
+                'wp-components',
+                'wp-block-editor',
+                'wp-data',
+                'wp-hooks',
+                'wp-compose',
+                'wp-api-fetch'
+            ],
+            '1.2.0',
+            false
+        );
 
-        wp_register_script('translation.js', plugin_dir_url($this->file) . 'assets/js/translation.js', ['jquery'], '1.1.0');
-        wp_enqueue_script('translation.js');
-        wp_localize_script('translation.js', 'openai_translation', [
-            'rest_url' => rest_url(TranslationPlugin::NAMESPACE . '/translate'),
-        ]);
+        // Pass available backends, languages, supported blocks, and REST API namespace to JS
+        // Make config available to all scripts
+        $config = [
+            'restNamespace' => TranslationPlugin::NAMESPACE,
+            'backends' => TranslationPlugin::getAvailableBackends(),
+            'languages' => TranslationPlugin::getLanguageList(),
+            'supportedBlocks' => TranslationPlugin::getSupportedBlockTypes(),
+        ];
 
-        // Add font awesome
-        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css', [], '5.15.3');
-    }
-
-    public function add_tpl_translation_button(): void
-    {
-        $this->render('translation-button');
+        wp_localize_script('openai-translation-gutenberg-editor', 'translationConfig', $config);
+        wp_localize_script('openai-translation-block-controls', 'translationConfig', $config);
+        wp_enqueue_style('openai-translation-gutenberg-editor-css', plugin_dir_url($this->file) . 'assets/editor-style.css');
     }
 }

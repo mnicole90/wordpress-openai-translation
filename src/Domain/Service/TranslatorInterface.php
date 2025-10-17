@@ -5,5 +5,5 @@ namespace Translation\Domain\Service;
 
 interface TranslatorInterface
 {
-    public function translate(string $text, string $targetLanguage): string;
+    public function translate(string $text, string $targetLocale): string;
 }
